@@ -1,0 +1,18 @@
+{
+  "accepts": ["ids"],
+  "classes": ["Gene"],
+  "columnMapping": {
+    "Gene": {
+      "id": "primaryIdentifier"
+    }
+  },
+  "files" : {
+    "css" : "dist/style.css",
+    "js" : "dist/bundle.js"
+  },
+  "toolName" : {
+    "human" :"BlueGenes DepMap Screens Visualizer",
+    "cljs" :"depMapScreensVisualization"
+  },
+  "version": 2
+}
