@@ -68,12 +68,10 @@ class RootContainer extends React.Component {
 				value
 			).then(res => {
 				this.setState({
-					//data: res.slice(0, this.state.filterOptions.limitResults),
 					data: res,
 					loading: false,
 					error: null
 				});
-				//this.render();
 			})
 			.catch(() => {
 				this.setState({ error: 'An error has occured (no data found)!' });
@@ -85,12 +83,10 @@ class RootContainer extends React.Component {
 				this.state.filterOptions
 			).then(res => {
 				this.setState({
-					//data: res.slice(0, this.state.filterOptions.limitResults),
 					data: res,
 					loading: false,
 					error: null
 				});
-				//this.render();
 			})
 			.catch(() => {
 				this.setState({ error: 'An error has occured (no data found)!' });
