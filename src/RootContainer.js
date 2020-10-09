@@ -58,10 +58,34 @@ class RootContainer extends React.Component {
 		this.queryDataWithFilters();
 	}
 
-	queryDataWithFilters(value = null) {
+	queryDataWithFilters(value = this.state.filterOptions) {
 		this.state.data = [];
 		this.setState({ loading: true, error: null });
-		if(value) {
+
+		if(!Array.isArray(this.props.entity.value)) {
+			// Instantiate the promises for each query
+			var depMapAchillesGeneEffectQueryPromise = queryData([this.props.entity.value], this.props.serviceUrl, { dataset: "Achilles Gene Effect" });
+			var DEMETER2DependencyQueryPromise = queryData([this.props.entity.value], this.props.serviceUrl, { dataset: "DEMETER2 Dependency" });
+			var sangerCRISPRQueryPromise = queryData([this.props.entity.value], this.props.serviceUrl, { dataset: "Sanger CRISPR" });
+
+			// Wrap the promises in an All predicate
+			Promise.all([depMapAchillesGeneEffectQueryPromise, DEMETER2DependencyQueryPromise, sangerCRISPRQueryPromise]).then((values) => {
+				console.log(values);
+
+				var tempData = {};
+
+				tempData["Achilles Gene Effect"] = values[0][Object.keys(values[0])[0]];
+				tempData["DEMETER2 Dependency"] = values[1][Object.keys(values[1])[0]];
+				tempData["Sanger CRISPR"] = values[2][Object.keys(values[2])[0]];
+
+				this.setState({
+					data: tempData,
+					loading: false,
+					error: null
+				});
+			});
+			
+		} else {
 			queryData(
 				this.props.entity.value,
 				this.props.serviceUrl,
@@ -76,22 +100,9 @@ class RootContainer extends React.Component {
 			.catch(() => {
 				this.setState({ error: 'An error has occured (no data found)!' });
 			});
-		} else {
-			queryData(
-				this.props.entity.value,
-				this.props.serviceUrl,
-				this.state.filterOptions
-			).then(res => {
-				this.setState({
-					data: res,
-					loading: false,
-					error: null
-				});
-			})
-			.catch(() => {
-				this.setState({ error: 'An error has occured (no data found)!' });
-			});
 		}
+		
+		
 	}
 
 	updateFilters(ev) {
@@ -110,33 +121,25 @@ class RootContainer extends React.Component {
 	render() {
 		var data = [];
 
-		if(this.state.data && this.state.data.length > 0) {
+		/*console.log(this.props.entity.value);
+		console.log(this.state.data);
+		console.log(typeof this.props.entity.value);
+		console.log(Array.isArray(this.props.entity.value));*/
+
+		if(this.state.data && Object.keys(this.state.data).length > 0) {
 			var colors = getColors(0.9, this.state.data.length);
 			
-			for(var i = 0; i < this.state.data.length; i++) {
-				var dataForThisTrace = [];
-				var geneName = this.state.data[i][0].gene.symbol;
-				var sum = 0;
-				for(var j = 0; j < this.state.data[i].length; j++) {
-					if(this.state.filterOptions["dataset"] == "Achilles Gene Effect") {
-						dataForThisTrace.push(this.state.data[i][j].DepmapAchillesGeneEffectValue);
-					} else if(this.state.filterOptions["dataset"] == "DEMETER2 Dependency") {
-						dataForThisTrace.push(this.state.data[i][j].DepMapDEMETER2DependencyValue);
-					} else if(this.state.filterOptions["dataset"] == "Sanger CRISPR") {						
-						dataForThisTrace.push(this.state.data[i][j].DepmapSangerCrisprGeneEffectValue);						
-					}
-				}
-
+			var counter = 0;
+			for(var key in this.state.data) {
 				var trace = {
-					x: dataForThisTrace,
-					name: geneName,
-					marker: {color: colors[i]},
+					x: this.state.data[key],
+					name: key,
+					marker: {color: colors[counter]},
 					type: 'histogram'
 				};
 
-				dataForThisTrace = [];
-
 				data.push(trace);
+				counter++;
 			}
 
 			var layout = {
@@ -198,25 +201,40 @@ class RootContainer extends React.Component {
 				}]
 			};
 	
-			return (
-				<div className="rootContainer">
-					<Controls
-						updateFilters={this.updateFilters}
-						filters={this.state.filterOptions}
-					/>
-					<span className="chart-title">DepMap Screens Visualization</span>
-					
-					<Plotly
-						data={data}
-						layout={layout}
-						style={{ width: '100%' }}
-					/>
-				</div>
-			);
+			if(!Array.isArray(this.props.entity.value)) {
+				return (
+					<div className="rootContainer">
+						<span className="chart-title">DepMap Screens Visualization</span>
+						
+						<Plotly
+							data={data}
+							layout={layout}
+							style={{ width: '100%' }}
+						/>
+					</div>
+				);
+			} else {
+				return (
+					<div className="rootContainer">
+						<Controls
+							updateFilters={this.updateFilters}
+							filters={this.state.filterOptions}
+						/>
+						<span className="chart-title">DepMap Screens Visualization</span>
+						
+						<Plotly
+							data={data}
+							layout={layout}
+							style={{ width: '100%' }}
+						/>
+					</div>
+				);
+			}
+			
 		} else {
 			return (
 				<div className="rootContainer">
-					No data available!
+					No data available (Debug Code 2)!
 				</div>
 			);
 		}

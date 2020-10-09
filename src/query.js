@@ -3,17 +3,8 @@ import imjs from 'imjs';
 const depMapAchillesGeneEffectQuery = (geneIds) => ({
 	from: 'Gene',
 	select: [
-		'Gene.achillesGeneEffect.gene.symbol',
-		'Gene.achillesGeneEffect.cellLine.DepMapID',
-		'Gene.achillesGeneEffect.cellLine.CCLEname',
-		'Gene.achillesGeneEffect.cellLine.Lineage',
+		'Gene.symbol',		
 		'Gene.achillesGeneEffect.DepmapAchillesGeneEffectValue'
-	],
-	orderBy: [
-		{
-			path: 'Gene.achillesGeneEffect.cellLine.Lineage',
-			direction: 'ASC'
-		}
 	],
 	where: [
 		{
@@ -27,17 +18,8 @@ const depMapAchillesGeneEffectQuery = (geneIds) => ({
 const DEMETER2DependencyQuery = (geneIds) => ({
 	from: 'Gene',
 	select: [
-		'Gene.depMapDEMETER2Dependency.gene.symbol',
-		'Gene.depMapDEMETER2Dependency.cellLine.DepMapID',
-		'Gene.depMapDEMETER2Dependency.cellLine.CCLEname',
-		'Gene.depMapDEMETER2Dependency.cellLine.Lineage',
+		'Gene.symbol',
 		'Gene.depMapDEMETER2Dependency.DepMapDEMETER2DependencyValue'
-	],
-	orderBy: [
-		{
-			path: 'Gene.depMapDEMETER2Dependency.cellLine.Lineage',
-			direction: 'ASC'
-		}
 	],
 	where: [
 		{
@@ -51,17 +33,8 @@ const DEMETER2DependencyQuery = (geneIds) => ({
 const sangerCRISPRQuery = (geneIds) => ({
 	from: 'Gene',
 	select: [
-		'Gene.depMapSangerCrisprGeneEffect.gene.symbol',
-		'Gene.depMapSangerCrisprGeneEffect.cellLine.DepMapID',
-		'Gene.depMapSangerCrisprGeneEffect.cellLine.CCLEname',
-		'Gene.depMapSangerCrisprGeneEffect.cellLine.Lineage',
+		'Gene.symbol',
 		'Gene.depMapSangerCrisprGeneEffect.DepmapSangerCrisprGeneEffectValue'
-	],
-	orderBy: [
-		{
-			path: 'Gene.depMapSangerCrisprGeneEffect.cellLine.Lineage',
-			direction: 'ASC'
-		}
 	],
 	where: [
 		{
@@ -76,58 +49,73 @@ function queryData(geneIds, serviceUrl, filterOptions, imjsClient = imjs) {
 	const service = new imjsClient.Service({
 		root: serviceUrl
 	});
-
-	console.log("Oe");
-	console.log(filterOptions["dataset"]);
+	
+	console.log("Query Data 1");
 	
 	if(filterOptions["dataset"] == "Achilles Gene Effect") {
+		console.log("Query Data 2");
 		return new Promise((resolve, reject) => {
 			service
 				.records(depMapAchillesGeneEffectQuery(geneIds))
 				.then(res => {
-					var resultData = [];
+					if(res.length == 0) reject('No data found (Debug Code 1)!');
+					var resultData = {};
+
 					for (var i = 0; i < res.length; i++) {
-						resultData.push(res[i].achillesGeneEffect);
+						var values = [];
+						for (var j = 0; j < res[i].achillesGeneEffect.length; j++) {
+							values.push(res[i].achillesGeneEffect[j].DepmapAchillesGeneEffectValue);
+						}
+
+						resultData[res[i].symbol] = values;
 					}
-					if (resultData.length === 0) reject('No data found!');
-					console.log("gene effect");
-					console.log(res);
+
 					resolve(resultData);
 				})
-				.catch(() => reject('No data found!'));
+				.catch((err) => { console.log(err); reject('No data found (Debug Code 1)!'); });
 		});
 	} else if(filterOptions["dataset"] == "DEMETER2 Dependency") {
 		return new Promise((resolve, reject) => {
 			service
 				.records(DEMETER2DependencyQuery(geneIds))
 				.then(res => {
-					console.log(res);
-					var resultData = [];
+					if(res.length == 0) reject('No data found (Debug Code 1)!');
+					var resultData = {};
+
 					for (var i = 0; i < res.length; i++) {
-						resultData.push(res[i].depMapDEMETER2Dependency);
+						var values = [];
+						for (var j = 0; j < res[i].depMapDEMETER2Dependency.length; j++) {
+							values.push(res[i].depMapDEMETER2Dependency[j].DepMapDEMETER2DependencyValue);
+						}
+						resultData[res[i].symbol] = values;
 					}
-					if (resultData.length === 0) reject('No data found!');
+
 					resolve(resultData);
 				})
-				.catch(() => reject('No data found!'));
+				.catch((err) => { console.log(err); reject('No data found (Debug Code 1)!'); });
 		});
 	} else if(filterOptions["dataset"] == "Sanger CRISPR") {						
 		return new Promise((resolve, reject) => {
 			service
 				.records(sangerCRISPRQuery(geneIds))
 				.then(res => {
-					var resultData = [];
+					if(res.length == 0) reject('No data found (Debug Code 1)!');
+					var resultData = {};
+
 					for (var i = 0; i < res.length; i++) {
-						resultData.push(res[i].depMapSangerCrisprGeneEffect);
+						var values = [];
+						for (var j = 0; j < res[i].depMapSangerCrisprGeneEffect.length; j++) {
+							values.push(res[i].depMapSangerCrisprGeneEffect[j].DepmapSangerCrisprGeneEffectValue);
+						}
+						resultData[res[i].symbol] = values;
 					}
-					if (resultData.length === 0) reject('No data found!');
-					console.log("Query Sanger CRISPR 2");
-					console.log(res);
-					console.log(resultData);
+
 					resolve(resultData);
 				})
-				.catch(() => reject('No data found!'));
+				.catch((err) => { console.log(err); reject('No data found (Debug Code 1)!'); });
 		});				
+	} else {
+		console.log("Error: Undefined dataset filtering option.");
 	}
 }
 
