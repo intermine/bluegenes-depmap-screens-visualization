@@ -14,9 +14,9 @@ class FilterPanel extends React.Component {
 							value={filters['dataset']}
 							onChange={updateFilters}
 						>
-							<option value="Achilles Gene Effect">Achilles Gene Effect</option>
+							<option value="Achilles Gene Effect">Broad CRISPR (Achilles)</option>
 							<option value="Sanger CRISPR">Sanger CRISPR</option>
-							<option value="DEMETER2 Dependency">DEMETER2 Dependency</option>
+							<option value="DEMETER2 Dependency">Combined RNAi (DEMETER2)</option>
 						</select>
 					</div>
 				</div>
