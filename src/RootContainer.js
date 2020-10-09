@@ -203,9 +203,7 @@ class RootContainer extends React.Component {
 	
 			if(!Array.isArray(this.props.entity.value)) {
 				return (
-					<div className="rootContainer">
-						<span className="chart-title">DepMap Screens Visualization</span>
-						
+					<div className="rootContainer">						
 						<Plotly
 							data={data}
 							layout={layout}
@@ -220,7 +218,6 @@ class RootContainer extends React.Component {
 							updateFilters={this.updateFilters}
 							filters={this.state.filterOptions}
 						/>
-						<span className="chart-title">DepMap Screens Visualization</span>
 						
 						<Plotly
 							data={data}
